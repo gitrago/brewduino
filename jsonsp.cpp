@@ -1,4 +1,5 @@
 #include "jsonsp.h"
+#include <avr/pgmspace.h>
 
 bool Jsonsp::isWhiteChar(char c){
   if (c == ' ' || c == '\n' || c == '\r' || c == '\t')
@@ -113,7 +114,7 @@ Jsonsp Jsonsp::operator[](const int idx){
   }
 
   
-  Serial.print("Start pos"); Serial.println(res.startBlockPos_);
+  //Serial.print("Start pos"); Serial.println(res.startBlockPos_);
   return res;
 }
 
@@ -149,11 +150,6 @@ Jsonsp Jsonsp::operator[](const char* inKey){
       if ( isWhiteChar(instream_[i]) )
         continue;
   
-//      if ( instream_[i] == endOfBlock){
-//        res.objType_ = -1;
-//        return res;
-//      }
-      
       if ( instream_[i] == '\"' && pos1 == 0){
         pos1 = i;
         continue;
@@ -187,7 +183,8 @@ Jsonsp Jsonsp::operator[](const char* inKey){
       break;
       
             
-    String key = instream_.sub(pos1+1, pos2);
+    const char key[pos2-pos1+2] = {0};
+    strcpy( key, instream_.sub(pos1+1, pos2).c_str() );
     res.objType_ = 0;
     //Serial.print("key=");
     //Serial.println(key);
@@ -205,7 +202,7 @@ Jsonsp Jsonsp::operator[](const char* inKey){
 
       if ( instream_[i] == '\"' && pos3 != 0){
         //Serial.println(key == inKey);
-        if ( key == inKey){
+        if ( strcmp(key, inKey) == 0){
           res.objType_ = 3;
           pos4 = i;
           res.value_ = instream_.sub(pos3+1, pos4);
@@ -225,7 +222,7 @@ Jsonsp Jsonsp::operator[](const char* inKey){
       }
 
       if ( instream_[i] == '[' && pos3 == 0 ){
-        if ( key == inKey){
+        if ( strcmp(key, inKey) == 0){
           res.objType_ = 2;
           res.startBlockPos_ = i;
           break;
@@ -248,7 +245,7 @@ Jsonsp Jsonsp::operator[](const char* inKey){
       }
 
       if ( (instream_[i] == '{') && (pos3 == 0) ){
-        if ( key == inKey){
+        if ( strcmp(key, inKey) == 0){
           res.objType_ = 1;
           res.startBlockPos_ = i;
           break;

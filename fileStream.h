@@ -5,10 +5,8 @@
 
 class FileStream{
   public:
-  FileStream(File * f){file_ = f;}
+  FileStream(File*  f):file_(f){}
   char operator[](int pos){
-    if (file_ == NULL)
-      return char('\0');
 
     file_->seek(pos);
     return file_->peek();
@@ -36,7 +34,7 @@ class FileStream{
     return -1;
   }
   
-  File * file_ = NULL;
+  File* file_;
 };
 
 #endif 
